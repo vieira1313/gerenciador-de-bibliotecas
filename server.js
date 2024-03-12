@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const {v4: uuidV4} = require('uuid')
 
 const app = express();
@@ -126,4 +126,4 @@ app.use((err, req, res, next)=> {
 })
 app.listen(PORT, () => {
     console.log(`Servidor está rodando na porta ${PORT} portanto, está tudo OK(200).`);
-})
+})*/
