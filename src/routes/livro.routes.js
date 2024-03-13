@@ -1,13 +1,14 @@
 const {Router} = require("express")
-const livroControler = require("../controllers/livroControler")
-const livroControler = require("../controllers/livroController")
 
-livroControler =  new livroController()
+const LivroController = require("../controllers/LivroController")
 
-userRoutes.post("/livro", livroControler.createlivro )
+const livroRoutes = Router()
+const livroController =  new LivroController()
 
-livroRoutes.get("/livro", livroControler.listlivro)
-livroRoutes.get("/livros/:livro_id", checklivroExists,  livroController.listlivroById)
-livroRoutes.put("/livros/:livro_id", checklivroExists, livroController.updatelivro )
-livroRoutes.delete("/livros/:livro_id", checklivroExists, livroController.deletelivro)
+livroRoutes.post("/", livroController.createLivro )
+
+livroRoutes.get("/", livroController.listLivro)
+livroRoutes.get("/:livro_id",  livroController.listLivroById)
+livroRoutes.put("/:livro_id", livroController.updateLivro )
+livroRoutes.delete("/:livro_id", livroController.deleteLivro)
 module.exports = livroRoutes

@@ -1,6 +1,7 @@
 const path = require("path")
 
 module.exports = {
+  
   development: {
     client: 'mysql2',
     connection:{

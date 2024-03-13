@@ -1,10 +1,11 @@
 {
-  "name": "todo_list",
+  "name": "library-manager",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node biblioteca.js"
+    "start": "node biblioteca.js",
+    "dev": "nodemon ./server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +15,8 @@
     "knex": "^3.1.0",
     "mysql2": "^3.9.2",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

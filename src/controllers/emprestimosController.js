@@ -1,71 +1,69 @@
 const knex = require("../database/knex")
-class emprestimosController{
-//Pesquisa de livros
-searchLivro (req, res) {
-    const {title, autor, categoria} = req.query
+class EmprestimosController {
+    
+    //Pesquisa de livros
+   async searchLivro(req, res) {
+        const {user_id, livro_id} = req.params
 
-    if(title){
-        result = livrosb.filter(livro => livro.title.includes(title))
-    }
-    if(autor){
-        result = livrosb.filter(livro => livro.autor.includes(autor))
-    }
-    if(categoria){
-        result = livrosb.filter(livro => livro.categoria.includes(categoria))
-    }
-   return res.status(200).json(result)
-}
-//Listagem de emprestimo de livros
- async listEmprestimos(req, res) {
-    const {id} = req.params;
-    const {nome} = req.headers;
-    const user = users.find(user => user.nome === nome)
-
-    if(!user){
-        res.status(400).json("Usuário não cadastrado, erro 404")
-    }
-    req.user = user
-
-    const livro = livrosb.find(livro => livro.id === id)
-
-    if(livro.disponivel === true){
-        const limite = user.listadeemprestimos.length >= 2
-        if(limite){
-            res.status(400).json("Limite Escedido!")
+        const livro = await knex("livro").where({id: livro_id}).first()
+        const user = await knex("users").where({id: user_id}).first()
+        
+        if(!livro) {
+            return res.status(400).json("livro não encontrado!")
+        }
+        if(!user) {
+            return res.status(400).json("usuario não encontrado!")
         }
 
-        user.listadeemprestimos.push(livro)
-        livro.disponivel = false
+        await knex("loans").insert({user_id, livro_id})
+        await knex("livro").where({id: livro_id}).update({disponivel: false})
 
-        return res.status(200).json("Atualizado com sucesso!")
+        return res.status(200).json("emprestimo realizado com sucesso!")
     }
-    else {
-        res.status(400).json("Livro Indisponivel")
+    //Listagem de emprestimo de livros
+    async listEmprestimos(req, res) {
+        const {user_id} = req.params
+
+        const loans = await knex("loans")
+        .where({user_id})
+        .innerJoin('livro', 'livro_id', 'loans.livro_id')
+        .select('livro.title', 'livro.autor', 'livro.paginas')
+
+        return res.status(200).json(loans)
+
     }
 
+    async totalLivrosEmprestados(req, res) {
+        const {user_id} = req.params
+
+        const [tatal] = await knex('loans').where({user_id}).count({livro: 'livro_id'})
+        return res.status(200).json(tatal)
+
+    }
+
+    //Devolução de Livros
+    async devoluçaoLivros(req, res) {
+        const {user_id, livro_id} = req.params
+
+        const livro = await knex("livro").where({id: livro_id}).first()
+        const user = await knex("users").where({id: user_id}).first()
+        
+        if(!livro) {
+            return res.status(400).json("livro não encontrado!")
+        }
+        if(!user) {
+            return res.status(400).json("usuario não encontrado!")
+        }
+        const [loan] = await knex("loans").where({user_id})
+
+        const bookId = loan.livro_id
+
+        if(bookId == livro_id) {
+            await knex("livro").where({id: livro_id}).update({disponivel:true})
+
+            return res.status(200).json("livro devolvido com sucesso!")
+        }
+    return res.status(400).json("operação não realizada!")
+    }
 }
-//Devolução de Livros
-async devoluçaoLivros (req, res) {
-    const {id} = req.params
-    const {nome} = req.headers
-    const user = users.find(user => user.nome === nome)
-
-    if(!user){
-        res.status(400).json("Usuário não cadastrado, erro 404")
-    }
-    req.user = user
-
-    
-    const Indexlivro = user.listadeemprestimos.findIndex(livro => livro.id === id)
-    const livro = livrosb.find(livro => livro.id === id)
-
-    if(Indexlivro === -1){
-        return res.status(400).json("Voce nao tem livros para devolucao")
-    }
-    user.listadeemprestimos.splice(Indexlivro, 1)
-    livro.disponivel = true
-
-    return res.status(200).json("Livro devolvido com sucesso!")
-    }
-}
-module.exports = emprestimosController
+module.exports = EmprestimosController

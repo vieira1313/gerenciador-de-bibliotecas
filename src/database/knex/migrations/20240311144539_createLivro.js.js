@@ -5,7 +5,7 @@ exports.up = (knex) => {
         table.string("autor").notNullable();
         table.string("paginas").notNullable();
         table.string("categoria").notNullable();
-        table.boolean("isAdmin").defaultTo("true")
+        table.boolean("disponivel").defaultTo("true")
     }) 
 };
 
